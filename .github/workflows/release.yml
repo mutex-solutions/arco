@@ -58,8 +58,9 @@ jobs:
           cd /tmp/tap
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet; then
-            git add Formula/arco.rb
+          # Stage first: plain `git diff` ignores a formula that is new to the tap.
+          git add Formula/arco.rb
+          if ! git diff --cached --quiet; then
             git commit -m "arco ${ver}"
             git push
           fi
