@@ -1,0 +1,19 @@
+{
+  "name": "arco",
+  "description": "The arco skill for Claude Code",
+  "owner": {
+    "name": "mutex-solutions",
+    "url": "https://github.com/mutex-solutions"
+  },
+  "plugins": [
+    {
+      "name": "arco",
+      "source": "./",
+      "description": "Drive herdr workspaces, panes, and AI agents across your machines through the arco MCP server",
+      "version": "0.1.0",
+      "author": {
+        "name": "mutex-solutions"
+      }
+    }
+  ]
+}

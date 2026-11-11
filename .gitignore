@@ -1,0 +1,15 @@
+bin/
+*.db
+/arco
+
+# Local-only design notes, never committed
+docs/
+.playwright-mcp/
+
+# Go build/test artifacts
+*.test
+*.out
+coverage.out
+
+# goreleaser
+dist/

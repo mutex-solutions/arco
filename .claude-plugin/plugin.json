@@ -1,0 +1,14 @@
+{
+  "name": "arco",
+  "displayName": "arco",
+  "version": "0.1.0",
+  "description": "Drive herdr workspaces, panes, and AI agents across your machines through the arco MCP server",
+  "author": {
+    "name": "mutex-solutions",
+    "url": "https://github.com/mutex-solutions"
+  },
+  "homepage": "https://github.com/mutex-solutions/arco",
+  "repository": "https://github.com/mutex-solutions/arco",
+  "license": "Apache-2.0",
+  "keywords": ["claude-code", "mcp", "herdr", "agents", "fleet"]
+}

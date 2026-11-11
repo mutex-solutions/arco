@@ -1,0 +1,23 @@
+# gitleaks configuration for arco.
+# Extends the default ruleset; adds allowlists for obvious placeholders and
+# synthetic test canaries.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholders and test fixtures, not real secrets"
+regexes = [
+  '''sk-\.\.\.''',
+  '''sk-fake[a-z0-9-]*''',
+  '''sk-xxx+''',
+  '''sk-your-key-here''',
+]
+# No path exclusions: test files are scanned too. Synthetic canaries in tests
+# are split across string concatenations so the rules never see them whole.
+
+[[rules]]
+id = "arco-token"
+description = "arco scoped MCP bearer token"
+regex = '''\barco_r[ow]_[A-Za-z0-9_-]{43}'''
+keywords = ["arco_ro_", "arco_rw_"]
