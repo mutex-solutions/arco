@@ -175,5 +175,6 @@ arco token revoke ops      # name or id; the next request gets 401
 | `Could not resolve hostname` | Typo in `host`, or the network (for example Tailscale) is down. |
 | `request was sent; outcome unknown` | The connection dropped after sending. Run `peek` before retrying a mutation. |
 | First character of a command is missing | The new shell showed its own prompt first (for example the oh-my-zsh update prompt). Set `DISABLE_UPDATE_PROMPT=true` in that machine's `.zshrc`. |
+| Agent stays `launch_pending` with status `unknown` | The shell was not ready and the launch command was mangled (see the row above). Close the pane and start again. |
 | HTTP 401 | Token is wrong, expired, or revoked. Check `arco token list`. |
 | Mutating tools are missing | The token has `read` scope. |

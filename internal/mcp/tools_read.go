@@ -129,7 +129,7 @@ func registerReadTools(s *sdkmcp.Server, reg *registry.Registry, client *herdr.C
 
 	register[peekInput](
 		s,
-		readTool("peek", "Read recent plain-text output from a pane via pane.read (source=recent_unwrapped, strip_ansi=true, format=text forced, 1-200 logical lines)."),
+		readTool("peek", "Read recent plain-text output from a pane via pane.read (source=recent_unwrapped, strip_ansi=true, format=text forced, 1-200 logical lines). A new pane can be empty until its shell prints a prompt."),
 		customizePeekSchema,
 		nil,
 		"",
