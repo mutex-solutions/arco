@@ -136,3 +136,51 @@ type closeWorkspaceInput struct {
 	Machine     string `json:"machine" jsonschema:"Registered machine id from machines.toml"`
 	WorkspaceID string `json:"workspace_id" jsonschema:"Target workspace_id to close"`
 }
+
+const (
+	maxWaitMS     = 120000
+	defaultWaitMS = 30000
+)
+
+type waitForOutputInput struct {
+	Machine   string `json:"machine" jsonschema:"Registered machine id from machines.toml"`
+	PaneID    string `json:"pane_id" jsonschema:"Target pane_id (for example w1:p1)"`
+	Pattern   string `json:"pattern" jsonschema:"Text to wait for. A substring unless regex is true"`
+	Regex     bool   `json:"regex,omitempty" jsonschema:"Treat pattern as a regular expression"`
+	TimeoutMS int    `json:"timeout_ms,omitempty" jsonschema:"How long to wait in milliseconds (1 to 120000, default 30000)"`
+	Tail      int    `json:"tail,omitempty" jsonschema:"Logical lines to search and return (1 to 200, default 20)"`
+}
+
+func customizeWaitForOutputSchema(s *jsonschema.Schema) {
+	requireNonEmptyProps("machine", "pane_id", "pattern")(s)
+	if p := s.Properties["timeout_ms"]; p != nil {
+		p.Minimum, p.Maximum = f64(1), f64(maxWaitMS)
+	}
+	if p := s.Properties["tail"]; p != nil {
+		p.Minimum, p.Maximum = f64(1), f64(200)
+	}
+}
+
+type waitAgentInput struct {
+	Machine   string   `json:"machine" jsonschema:"Registered machine id from machines.toml"`
+	Target    string   `json:"target" jsonschema:"Target pane_id running an agent (from agents)"`
+	Until     []string `json:"until,omitempty" jsonschema:"States to wait for (default: idle, done, blocked)"`
+	TimeoutMS int      `json:"timeout_ms,omitempty" jsonschema:"How long to wait in milliseconds (1 to 120000, default 30000)"`
+}
+
+func customizeWaitAgentSchema(s *jsonschema.Schema) {
+	requireNonEmptyProps("machine", "target")(s)
+	if p := s.Properties["timeout_ms"]; p != nil {
+		p.Minimum, p.Maximum = f64(1), f64(maxWaitMS)
+	}
+	if p := s.Properties["until"]; p != nil && p.Items != nil {
+		p.Items.Enum = []any{"idle", "working", "blocked", "done", "unknown"}
+	}
+}
+
+func orDefault(v, def int) int {
+	if v == 0 {
+		return def
+	}
+	return v
+}

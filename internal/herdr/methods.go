@@ -123,6 +123,30 @@ type AgentWaitOptions struct {
 	Until     []string `json:"until,omitempty"`
 }
 
+// AgentWaitParams encodes agent.wait parameters.
+type AgentWaitParams struct {
+	Target    string   `json:"target"`
+	TimeoutMS uint64   `json:"timeout_ms"`
+	Until     []string `json:"until,omitempty"`
+}
+
+// OutputMatch is a pane.wait_for_output match: type "substring" or "regex".
+type OutputMatch struct {
+	Type  string `json:"type"`
+	Value string `json:"value"`
+}
+
+// PaneWaitForOutputParams encodes pane.wait_for_output parameters.
+// Source and StripANSI are forced the same way as for peek.
+type PaneWaitForOutputParams struct {
+	PaneID    string      `json:"pane_id"`
+	Source    string      `json:"source"`
+	Match     OutputMatch `json:"match"`
+	Lines     int         `json:"lines"`
+	TimeoutMS uint64      `json:"timeout_ms"`
+	StripANSI bool        `json:"strip_ansi"`
+}
+
 // AgentPromptParams encodes agent.prompt parameters.
 type AgentPromptParams struct {
 	Target string            `json:"target"`

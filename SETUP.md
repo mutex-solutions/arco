@@ -110,8 +110,8 @@ header:   Authorization: Bearer arco_rw_...
 
 | Scope | Tools | Defaults |
 |---|---|---|
-| `read` | the 7 read tools | all machines, no expiry |
-| `readwrite` | all 13 tools | `--machines` required, expires in 30 days, at most 90 |
+| `read` | the 9 read tools | all machines, no expiry |
+| `readwrite` | all 15 tools | `--machines` required, expires in 30 days, at most 90 |
 
 Tokens are stored as SHA-256 hashes in `~/.arco/tokens.json` (mode 0600). To
 use another file, pass `--tokens <path>` or set `ARCO_TOKENS`.
@@ -144,8 +144,8 @@ claude mcp add --transport http arco-http http://127.0.0.1:8080/mcp \
 
 Any MCP client with Streamable HTTP and custom headers works the same way.
 
-Check in a new session: a `read` token lists 7 tools, a `readwrite` token
-lists 13.
+Check in a new session: a `read` token lists 9 tools, a `readwrite` token
+lists 15.
 
 ### Revoke
 

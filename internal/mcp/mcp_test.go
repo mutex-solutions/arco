@@ -245,8 +245,8 @@ func TestAllTools_EndToEnd(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(listRes.Tools) != 13 {
-		t.Fatalf("expected 13 tools, got %d", len(listRes.Tools))
+	if len(listRes.Tools) != 15 {
+		t.Fatalf("expected 15 tools, got %d", len(listRes.Tools))
 	}
 	for _, tool := range listRes.Tools {
 		if !strings.HasPrefix(tool.Description, "[READ-ONLY]") && !strings.HasPrefix(tool.Description, "[MUTATING]") {
