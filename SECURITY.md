@@ -31,6 +31,8 @@ close workspaces on those machines, exactly as you could by hand.
 - Runs ssh with `BatchMode=yes`, agent and X11 forwarding off, and a minimal
   environment. Message content never appears in ssh arguments.
 - Never focuses a pane or creates a workspace in the foreground.
+- Logs one audit line per tool call to stderr: tool, machine, token id (or
+  `stdio`), outcome, and duration. Arguments and results are never logged.
 
 ## What arco does not protect against
 

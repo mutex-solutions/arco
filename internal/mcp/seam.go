@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 	"unicode/utf8"
 
 	"github.com/google/jsonschema-go/jsonschema"
@@ -51,12 +52,16 @@ func register[In any](
 			}
 		}()
 
+		start := time.Now()
+		var argsObj map[string]any
+		outcome := "invalid"
+		defer func() { audit(ctx, t.Name, !t.Annotations.ReadOnlyHint, argsObj, start, outcome) }()
+
 		raw := bytes.TrimSpace(req.Params.Arguments)
 		if len(raw) == 0 || string(raw) == "null" {
 			raw = []byte("{}")
 		}
 
-		var argsObj map[string]any
 		if err := json.Unmarshal(raw, &argsObj); err != nil || argsObj == nil {
 			if err == nil {
 				err = fmt.Errorf("arguments must be a JSON object")
@@ -80,7 +85,12 @@ func register[In any](
 			}
 		}
 
+		outcome = "panic" // replaced below unless fn panics
 		val, callErr := fn(ctx, in)
+		outcome = "ok"
+		if callErr != nil {
+			outcome = "error"
+		}
 		return respond(val, callErr, truncMarker), nil
 	})
 }
