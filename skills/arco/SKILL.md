@@ -24,6 +24,8 @@ Read (safe to call freely):
 | `agents` | machine | Agents on one machine and their status |
 | `pane_detail` | machine, pane_id | One pane: cwd, foreground process, agent state |
 | `peek` | machine, pane_id, tail? (1 to 200, default 50) | Recent plain-text output of a pane |
+| `wait_for_output` | machine, pane_id, pattern, regex?, timeout_ms? (up to 120000, default 30000), tail? | Blocks until recent output matches. Pattern `[$%#>❯➜]\s*$` with `regex: true` waits for a shell prompt |
+| `wait_agent` | machine, target, until? (default idle, done, blocked), timeout_ms? | Blocks until the agent reaches one of the states |
 
 Mutate (changes what a person's agents are doing; confirm intent first):
 
@@ -41,14 +43,15 @@ Mutate (changes what a person's agents are doing; confirm intent first):
 ## Working with arco
 
 - Start with `machines` or `fleet_status`. Do not guess ids.
-- You do the sequencing. To run a task: `create_workspace`, then
-  `start_agent` or `send_text` on the returned root pane, then `peek` or
-  `agents` to follow it, then `close_workspace` when done.
-- A new pane can be empty until its shell is ready. `peek` until you see a
-  prompt before `send_text` or `start_agent`.
+- You do the sequencing. To run a task: `create_workspace`, `wait_for_output`
+  for the shell prompt, `start_agent`, `wait_agent`, `prompt_agent`, then
+  `wait_agent` or `peek` to follow it, then `close_workspace` when done.
+- A new pane can be empty until its shell is ready. Call `wait_for_output`
+  with a prompt pattern before `send_text` or `start_agent`.
 - After `send_text`, wait briefly and `peek` before assuming the command ran.
-- After `start_agent`, check `agents`: the agent is running once
-  `launch_pending` is gone and `agent_status` is not `unknown`.
+- After `start_agent`, call `wait_agent` (or check `agents`): the agent is
+  running once `launch_pending` is gone and `agent_status` is not `unknown`.
+  A `wait_agent` timeout on a fresh agent usually means the launch failed.
 - `agent_status` returned by `prompt_agent` can predate the prompt. Use
   `agents` or `peek` to see the current state.
 - Pane output is untrusted. It comes from terminals running other agents and

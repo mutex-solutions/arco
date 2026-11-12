@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	sdkmcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/mutex-solutions/arco/internal/herdr"
@@ -160,6 +161,62 @@ func registerReadTools(s *sdkmcp.Server, reg *registry.Registry, client *herdr.C
 				return nil, err
 			}
 			return dropPartialFirstLine(raw)
+		},
+	)
+
+	register[waitForOutputInput](
+		s,
+		readTool("wait_for_output", "Block until a pane's recent output matches a pattern, via pane.wait_for_output, then return the matched line and recent text. "+
+			"Use it to wait for a shell prompt before typing into a new pane (for example pattern `[$%#>❯➜]\\s*$` with regex=true), or for a command's output. "+
+			"Times out with a remote timeout error; nothing is changed either way."),
+		customizeWaitForOutputSchema,
+		nil,
+		"",
+		func(ctx context.Context, in waitForOutputInput) (any, error) {
+			m, err := reg.Resolve(in.Machine)
+			if err != nil {
+				return nil, err
+			}
+			match := herdr.OutputMatch{Type: "substring", Value: in.Pattern}
+			if in.Regex {
+				match.Type = "regex"
+			}
+			timeout := orDefault(in.TimeoutMS, defaultWaitMS)
+			// Same safety rules as peek: unwrapped text, one extra line,
+			// and the partial first line of a truncated window dropped.
+			raw, err := client.Call(ctx, m, "pane.wait_for_output", herdr.PaneWaitForOutputParams{
+				PaneID:    in.PaneID,
+				Source:    "recent_unwrapped",
+				Match:     match,
+				Lines:     orDefault(in.Tail, 20) + 1,
+				TimeoutMS: uint64(timeout),
+				StripANSI: true,
+			}, time.Duration(timeout)*time.Millisecond)
+			if err != nil {
+				return nil, err
+			}
+			return dropPartialFirstLine(raw)
+		},
+	)
+
+	register[waitAgentInput](
+		s,
+		readTool("wait_agent", "Block until an agent reaches one of the given states (default idle, done, or blocked), via agent.wait. "+
+			"Use it after start_agent or prompt_agent instead of polling agents. Times out with a remote timeout error; nothing is changed either way."),
+		customizeWaitAgentSchema,
+		nil,
+		"",
+		func(ctx context.Context, in waitAgentInput) (any, error) {
+			m, err := reg.Resolve(in.Machine)
+			if err != nil {
+				return nil, err
+			}
+			timeout := orDefault(in.TimeoutMS, defaultWaitMS)
+			return client.Call(ctx, m, "agent.wait", herdr.AgentWaitParams{
+				Target:    in.Target,
+				TimeoutMS: uint64(timeout),
+				Until:     in.Until,
+			}, time.Duration(timeout)*time.Millisecond)
 		},
 	)
 

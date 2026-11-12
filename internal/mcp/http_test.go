@@ -124,7 +124,7 @@ func TestHTTP_ReadTokenSeesOnlyInspectionTools(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := strings.Join(toolNames(t, cs), ",")
-	if got != "agents,fleet_status,machines,pane_detail,panes,peek,workspaces" {
+	if got != "agents,fleet_status,machines,pane_detail,panes,peek,wait_agent,wait_for_output,workspaces" {
 		t.Fatalf("read token tools: %s", got)
 	}
 	res, err := cs.CallTool(context.Background(), &sdkmcp.CallToolParams{
@@ -146,8 +146,8 @@ func TestHTTP_MachineAllowlistIsEnforced(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if n := len(toolNames(t, cs)); n != 13 {
-		t.Fatalf("readwrite token sees %d tools, want 13", n)
+	if n := len(toolNames(t, cs)); n != 15 {
+		t.Fatalf("readwrite token sees %d tools, want 15", n)
 	}
 
 	txt, isErr := callText(t, cs, "machines", nil)

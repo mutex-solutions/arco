@@ -79,7 +79,7 @@ The full walkthrough, including remote access, is in [SETUP.md](SETUP.md).
 
 | Read | Mutate |
 |---|---|
-| `machines`, `fleet_status`, `workspaces`, `panes`, `agents`, `peek`, `pane_detail` | `create_workspace`, `send_text`, `start_agent`, `prompt_agent`, `close_pane`, `close_workspace` |
+| `machines`, `fleet_status`, `workspaces`, `panes`, `agents`, `peek`, `pane_detail`, `wait_for_output`, `wait_agent` | `create_workspace`, `send_text`, `start_agent`, `prompt_agent`, `close_pane`, `close_workspace` |
 
 Read tools are annotated `readOnlyHint`, so clients can auto-approve them and
 ask before mutations.
@@ -95,7 +95,7 @@ arco token create --name ops --scope readwrite --machines vm0 --ttl 7d   # read-
 arco serve --http 127.0.0.1:8080
 ```
 
-- `read` tokens get the 7 read tools. `readwrite` tokens get all 13.
+- `read` tokens get the 9 read tools. `readwrite` tokens get all 15.
 - A token sees only the machines it was created for.
 - Only SHA-256 hashes are stored. Revocation applies to the next request.
 - Run it on loopback or a private network. It has no OAuth and is not built
