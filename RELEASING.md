@@ -31,6 +31,12 @@ Releases are built by GoReleaser when a version tag is pushed.
 
 Windows is not supported: arco needs unix sockets and `flock`.
 
+## Go version
+
+Releases build with the latest stable Go (`go-version: stable`), so binaries
+carry current standard library security fixes. `go.mod` states the minimum
+Go version for building from source; CI tests both.
+
 ## Version
 
 The binary version comes from the tag through `-ldflags -X main.Version`.

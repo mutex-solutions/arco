@@ -154,7 +154,58 @@ arco token list
 arco token revoke ops      # name or id; the next request gets 401
 ```
 
-## 6. Acceptance checklist
+### Hermes Agent
+
+Hermes runs an MCP server's calls one at a time unless that server sets
+`supports_parallel_tool_calls: true`. Hermes ignores tool annotations for
+this, and the setting covers every tool on the server. To let it batch checks
+without batching writes, give it two entries:
+
+```yaml
+mcp_servers:
+  arco_checks:                      # read token: batched
+    url: "http://127.0.0.1:8080/mcp"
+    headers: { Authorization: "Bearer arco_ro_..." }
+    trust: untrusted
+    supports_parallel_tool_calls: true
+  arco:                             # readwrite token: one at a time, approval per write
+    url: "http://127.0.0.1:8080/mcp"
+    headers: { Authorization: "Bearer arco_rw_..." }
+    trust: untrusted
+```
+
+## 6. Run arco serve as a sidecar
+
+To run `arco serve` next to an agent in a container or pod:
+
+- Install a pinned version in the image:
+  `curl -fsSL https://raw.githubusercontent.com/mutex-solutions/arco/main/install.sh | ARCO_VERSION=v0.1.1 ARCO_INSTALL_DIR=/usr/local/bin sh`
+- The image needs `openssh-client`. Mount the ssh private key and a
+  `known_hosts` file read-only, and `machines.toml`.
+- Keep `tokens.json` on a persistent volume (`--tokens /data/tokens.json`) so
+  tokens survive restarts. Create tokens with `arco token create --tokens
+  /data/tokens.json` inside the container.
+- Bind to `127.0.0.1` when the agent shares the pod network. Expose no
+  Service or Ingress.
+- Probe `GET /healthz` for liveness. It does not contact any machine.
+
+## 7. Upgrade
+
+```sh
+brew upgrade arco                 # Homebrew
+curl -fsSL https://raw.githubusercontent.com/mutex-solutions/arco/main/install.sh | sh   # install.sh
+arco version
+```
+
+Restart `arco serve` and any client that spawns `arco mcp serve`.
+`machines.toml` and `tokens.json` carry over. For a sidecar, bump
+`ARCO_VERSION` in the image and redeploy. Check the release notes for
+tool changes; clients see new tools after reconnecting.
+
+If `arco version` shows an old version, another copy is earlier on your
+`PATH` (`which -a arco`).
+
+## 8. Acceptance checklist
 
 1. `arco machines` reports every machine `ok`.
 2. `fleet_status` lists agents per machine. A stopped machine appears with an
@@ -176,5 +227,6 @@ arco token revoke ops      # name or id; the next request gets 401
 | `request was sent; outcome unknown` | The connection dropped after sending. Run `peek` before retrying a mutation. |
 | First character of a command is missing | The new shell showed its own prompt first (for example the oh-my-zsh update prompt). Set `DISABLE_UPDATE_PROMPT=true` in that machine's `.zshrc`. |
 | Agent stays `launch_pending` with status `unknown` | The shell was not ready and the launch command was mangled (see the row above). Close the pane and start again. |
+| Every call takes about 250 ms or more | Each call opens a new ssh connection. Enable connection reuse in `~/.ssh/config`: `ControlMaster auto`, `ControlPath ~/.ssh/cm-%C`, `ControlPersist 10m`. |
 | HTTP 401 | Token is wrong, expired, or revoked. Check `arco token list`. |
 | Mutating tools are missing | The token has `read` scope. |
