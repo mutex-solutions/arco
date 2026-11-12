@@ -124,7 +124,9 @@ arco serve --http 127.0.0.1:8080
 
 - Bind to loopback or a private address (LAN, Tailscale). arco prints a
   warning for any other address.
-- The log shows method, path, status, duration, and token id. Never the token.
+- The log shows one line per request (method, path, status, duration, token
+  id) and one audit line per tool call (tool, machine, token id, outcome).
+  Never the token, arguments, or pane output.
 - Tokens are reloaded on every request. No restart is needed after create or
   revoke.
 

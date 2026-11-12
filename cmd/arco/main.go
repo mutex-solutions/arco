@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"os/signal"
 	"runtime/debug"
@@ -123,6 +124,8 @@ func run(ctx context.Context, args []string, stdin io.ReadCloser, stdout io.Writ
 		}
 		client := herdr.NewClientWithDialers(reg, nil, sshDialer)
 		srv := mcp.NewMCPServer(reg, client, currentVersion())
+		// One audit line per tool call on stderr; stdout carries JSON-RPC.
+		ctx = mcp.WithAudit(ctx, slog.New(slog.NewTextHandler(stderr, nil)), "stdio")
 
 		var serveErr error
 		if stdin == os.Stdin && stdout == os.Stdout {

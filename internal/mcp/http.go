@@ -109,7 +109,8 @@ func requireToken(store *auth.Store, log *slog.Logger, next http.Handler) http.H
 		if lw, ok := w.(*loggingWriter); ok {
 			lw.tokenID = rec.ID
 		}
-		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), tokenKey{}, rec)))
+		ctx := WithAudit(context.WithValue(r.Context(), tokenKey{}, rec), log, rec.ID)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
